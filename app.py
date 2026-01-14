@@ -412,4 +412,6 @@ def refresh():
     return "Odświeżono bazę na żądanie"
 
 if __name__ == '__main__':
-    app.run(debug=False, use_reloader=False, port=8000, host="127.0.0.1")
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host="0.0.0.0", port=port)
+
