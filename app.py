@@ -39,10 +39,8 @@ NOTIFIER_INTERVAL = 5 * 60  # co 5 minut tylko sprawdzanie progów
 
 DEFAULT_PLACEHOLDER = "/static/no-image.png"
 
-DISCORD_WEBHOOK_URL = (
-    "https://discord.com/api/webhooks/"
-    "1461076804034105559/YflKwPorOxSTviZAal_7PwjqPb2suseTP4F6D9E46yum0c1zBdBeB1BysrzhZd9DDhMu"
-)
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
+
 ENABLE_DISCORD      = bool(DISCORD_WEBHOOK_URL)
 NOTIFY_CITIES       = {"cyleria city", "boss room", "ankardia"}
 NOTIFY_24H          = 24 * 3600
