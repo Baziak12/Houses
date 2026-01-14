@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Domki</title>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+<style>
+/* ------------------ GLOBAL ------------------ */
+body {
+  margin: 0;
+  padding: 0;
+  background: #0b0b0b url('https://i.imgur.com/8VQ2XqP.jpeg') center/cover fixed;
+  font-family: "Georgia", serif;
+  color: #e6e2d3;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* winieta */
+body:after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.7) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ------------------ SIDEBAR ------------------ */
+#sidebar {
+  width: 260px;
+  background: url('https://i.imgur.com/3q5Qn2Y.jpeg') center/cover;
+  border-right: 3px solid #3a2f1b;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  z-index: 2;
+}
+
+#sidebar h1 {
+  font-family: "Trajan Pro", serif;
+  font-size: 2rem;
+  color: #d6c7a1;
+  text-shadow: 0 0 6px #000;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #3a2f1b;
+  padding-bottom: 10px;
+}
+
+.sidebar-section {
+  margin-bottom: 25px;
+}
+
+.sidebar-section h2 {
+  font-size: 1.2rem;
+  color: #cbb89c;
+  margin-bottom: 10px;
+  border-left: 4px solid #6a5a3a;
+  padding-left: 10px;
+}
+
+.sidebar-section p {
+  font-size: 0.95rem;
+  color: #d6c7a1;
+  opacity: 0.85;
+}
+
+/* ------------------ MAIN CONTENT ------------------ */
+#content {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+  z-index: 2;
+}
+
+/* FILTER PANEL */
+#filters {
+  width: 100%;
+  padding: 20px;
+  background: rgba(25, 20, 15, 0.85);
+  border: 2px solid #3a2f1b;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.7);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+#filters label {
+  font-size: 1rem;
+  color: #d6c7a1;
+}
+
+#filters input,
+#filters select {
+  background: #1a1714;
+  color: #e6e2d3;
+  border: 1px solid #4a3f2a;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+#clearFilters {
+  background: #5a2f2f;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  color: #e6e2d3;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: 0.2s;
+}
+
+#clearFilters:hover {
+  background: #7a3a3a;
+}
+
+/* TABLE */
+table.dataTable {
+  width: 100%;
+  margin-top: 30px;
+  background: rgba(25, 20, 15, 0.9);
+  border: 2px solid #3a2f1b;
+  border-radius: 8px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.8);
+  z-index: 2;
+}
+
+table.dataTable thead {
+  background: rgba(30, 25, 20, 0.95);
+}
+
+table.dataTable th {
+  color: #d6c7a1;
+  font-size: 1rem;
+  border-bottom: 1px solid #3a2f1b;
+  font-family: "Trajan Pro", serif;
+}
+
+table.dataTable tbody tr {
+  background: rgba(20, 17, 14, 0.9);
+  transition: 0.15s;
+  position: relative;
+  z-index: 2;
+}
+
+table.dataTable tbody tr:nth-child(odd) {
+  background: rgba(18, 15, 12, 0.9);
+}
+
+table.dataTable tbody tr:hover {
+  background: rgba(35, 30, 25, 0.95) !important;
+}
+
+/* ------------------ IMAGE ZOOM (W MIEJSCU, BEZ ZASŁANIANIA) ------------------ */
+.zoom-layer {
+  position: fixed;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
+}
+
+.zoom-layer img {
+  position: absolute;
+  transform-origin: top left;
+  border-radius: 4px;
+  border: 1px solid #6a5a3a;
+  box-shadow: 0 0 20px rgba(0,0,0,0.9);
+}
+
+/* STATUS TAGS */
+.status-aktywny {
+  background: #3f4a32;
+  padding: 5px 12px;
+  border-radius: 4px;
+  color: #d6c7a1;
+  font-weight: bold;
+}
+
+.status-nieaktywny {
+  background: #4a3232;
+  padding: 5px 12px;
+  border-radius: 4px;
+  color: #d6c7a1;
+  font-weight: bold;
+}
+
+/* DATATABLES FIX */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+  background: #1a1714 !important;
+  color: #e6e2d3 !important;
+  border: 1px solid #4a3f2a !important;
+}
+
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_length label {
+  color: #d6c7a1 !important;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <h1>Domki</h1>
+
+  <div class="sidebar-section">
+    <h2>Opis</h2>
+    <p>Panel zarządzania domkami. Przeglądaj, filtruj i analizuj dostępne lokacje.</p>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="content">
+
+  <div id="filters">
+    <label>Dni ≤ <input type="number" id="maxDays" style="width:80px"></label>
+    <label>Domek <input type="text" id="houseName"></label>
+    <label>Właściciel <input type="text" id="ownerName"></label>
+    <label>Miasto <select id="citySelect"><option></option></select></label>
+    <label>Status <select id="statusSelect"><option></option><option>Aktywny</option><option>Nieaktywny</option></select></label>
+    <button id="clearFilters">Wyczyść</button>
+  </div>
+
+  <table id="housesTable" class="display">
+    <thead>
+      <tr>
+        <th>Grafika</th><th>Domek</th><th>Miasto</th>
+        <th>Wielkość</th><th>Właściciel</th><th>Dni</th>
+        <th>Dostępny</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+</div>
+
+<!-- ZOOM LAYER -->
+<div class="zoom-layer" id="zoomLayer"></div>
+
+<script>
+$(function(){
+
+  /* ------------------ FILTERS ------------------ */
+  $.fn.dataTable.ext.search.push(
+    (_, row) => {
+      let max = parseInt($('#maxDays').val(), 10), d = parseInt(row[5], 10);
+      return isNaN(max) || d <= max;
+    },
+    (_, row) => {
+      let nm = $('#houseName').val().toLowerCase();
+      return !nm || row[1].toLowerCase().includes(nm);
+    },
+    (_, row) => {
+      let owner = $('#ownerName').val().toLowerCase();
+      return !owner || row[4].toLowerCase().includes(owner);
+    },
+    (_, row) => {
+      let c = $('#citySelect').val();
+      return !c || row[2] === c;
+    },
+    (_, row) => {
+      let s = $('#statusSelect').val();
+      return !s || row[7] === s;
+    }
+  );
+
+  /* ------------------ DATATABLE ------------------ */
+  let table = $('#housesTable').DataTable({
+    ajax: { url: '/houses', dataSrc: 'data' },
+    columns: [
+      { data: 'image', render: d => d ? `<img src="${d}" alt="Grafika domku">` : '' },
+      { data: 'name' },
+      { data: 'city' },
+      { data: 'size' },
+      { data: 'owner' },
+      { data: 'days' },
+      { data: 'available' },
+      { data: 'status', render: d => `<span class="status-${d.toLowerCase()}">${d}</span>` }
+    ],
+    initComplete() {
+      let api = this.api();
+      api.column(2).data().unique().sort()
+        .each(c => $('#citySelect').append(`<option>${c}</option>`));
+    },
+    order: [[1, 'asc']],
+    pageLength: 25
+  });
+
+  $('#maxDays, #houseName, #ownerName, #citySelect, #statusSelect')
+    .on('input change', () => table.draw());
+
+  $('#clearFilters').click(() => {
+    $('#maxDays').val('');
+    $('#houseName').val('');
+    $('#ownerName').val('');
+    $('#citySelect').val('');
+    $('#statusSelect').val('');
+    table.search('').draw();
+  });
+
+  /* ------------------ PERFECT ZOOM W MIEJSCU ------------------ */
+  const zoomLayer = document.getElementById("zoomLayer");
+
+  $(document).on("mouseenter", "table.dataTable img", function () {
+      const rect = this.getBoundingClientRect();
+      const clone = this.cloneNode(true);
+
+      clone.style.top = rect.top + "px";
+      clone.style.left = rect.left + "px";
+      clone.style.width = rect.width + "px";
+      clone.style.height = rect.height + "px";
+      clone.style.transform = "scale(2.2)";
+
+      zoomLayer.innerHTML = "";
+      zoomLayer.appendChild(clone);
+  });
+
+  $(document).on("mouseleave", "table.dataTable img", function () {
+      zoomLayer.innerHTML = "";
+  });
+
+});
+</script>
+
+</body>
+</html>
